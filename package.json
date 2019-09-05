@@ -1,9 +1,8 @@
 {
-  "name": "svelte-ace-editor",
-  "description": "A Svelte3 component based on ace/brace",
-  "version": "0.0.2",
+  "name": "svelte-axios-form",
+  "description": "A Svelte3 component based on laravel/vform",
+  "version": "0.0.0",
   "author": "IOM <npm@greatenemy.com> (https://github.com/GreatEnemy)",
-  "svelte": "src/index.svelte",
   "module": "index.mjs",
   "main": "index.js",
   "license": "MIT",
@@ -12,9 +11,9 @@
     "prepublishOnly": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/GreatEnemy/svelte-ace-editor/issues"
+    "url": "https://github.com/GreatEnemy/svelte-axios-form/issues"
   },
-  "homepage": "https://github.com/GreatEnemy/svelte-ace-editor#readme",
+  "homepage": "https://github.com/GreatEnemy/svelte-axios-form#readme",
   "devDependencies": {
     "rollup": "^1.11.0",
     "rollup-plugin-node-resolve": "^4.0.0",
@@ -24,18 +23,22 @@
   "keywords": [
     "svelte",
     "Svelte3",
-    "ace editor"
+    "laravel",
+    "ErrorBag",
+    "MessageBag",
+    "vform"
   ],
   "files": [
     "src",
     "index.mjs",
     "index.js"
   ],
-  "dependencies": {
-    "brace": "^0.11.1"
+  "peerDependencies": {
+    "axios": "*",
+    "lodash": "4.*"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/greatenemy/svelte-ace-editor.git"
+    "url": "git+https://github.com/greatenemy/svelte-axios-form.git"
   }
 }

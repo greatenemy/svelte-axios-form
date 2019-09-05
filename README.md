@@ -1,88 +1,142 @@
-svelte-ace-editor
+svelte-axios-form
 ====================
 
 
-[![npm](https://img.shields.io/npm/v/svelte-ace-editor.svg)](https://www.npmjs.com/package/svelte-ace-editor)
-
-
-A packaging of [ace](https://ace.c9.io/)
+[![npm](https://img.shields.io/npm/v/svelte-axios-form.svg)](https://www.npmjs.com/package/svelte-axios-form)
 
 Demos:
-- https://sql.greatenemy.com/ https://github.com/greatenemy/sql-sapper
-- https://textsort.greatenemy.com/ https://github.com/greatenemy/textsort-sapper
-
-## IMPORTANT
-emmet support for html is removed after 0.0.6. because its code cannot works with strict mode.
-
-if you want to use it. require emmet by your own.
-```
-npm install emmet@git+https://github.com/cloud9ide/emmet-core.git#41973fcc70392864c7a469cf5dcd875b88b93d4a
-```
-
-```js
-require(['emmet/emmet'],function (data) { // this is huge. so require it async is better
-    window.emmet = data.emmet;
-});
-```
+- _None Yet_
 
 ## How to use
 
 1. Install
 
+    lodash@4 and axios are peer dependencies
+
     ```
-    npm install --save-dev svelte-ace-editor
+    npm install --save-dev svelte-axios-form lodash@4 axios
     ```
 
 2. Use in a svelte component:
 
     ```js
     <div>
-        <AceEditor
-          bind:value={value}
-          theme="clouds_midnight"
-          lang={lang}
-          options={options}
-          width="100%"
-          height="512"
-          on:init={editorInit}
-          on:input={onEditorChange}
-        />
+      <form
+        on:submit|preventDefault={login}
+        on:keydown={($event) => form.onKeydown($event)}
+      >
+        <div class="form-group">
+          <label>Username</label>
+          <input
+            class="form-control"
+            bind:value={form.email}
+            class:is-invalid={form.errors.has('email')}
+            type='email'
+            name='email'
+          />
+          <HasError {form} field="email" />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input
+            class="form-control"
+            bind:value={form.password}
+            class:is-invalid={form.errors.has('password')}
+            type='password'
+            name='password'
+          />
+          <HasError {form} field="password" />
+        </div>
+
+        <button
+          disabled={form.busy}
+          type="submit"
+          class="btn btn-primary"
+        >Log In</button>
+      </form>
     </div>
 
     <script>
-      import AceEditor from 'svelte-ace-editor'
+      import Form from 'svelte-axios-form'
 
-      if (process.browser) {
-        require('brace');
-        // require('brace/ext/language_tools')
-        // require('brace/ext/language_tools')
-        // require('brace/mode/pgsql')
-        // require('brace/mode/mysql')
-        // require('brace/mode/sql')
-        // require('brace/mode/sqlserver')
-        require('brace/theme/clouds_midnight')
+      // or
+      import { Form, HasError } from 'svelte-axios-form'
+
+      // or
+      import Form from 'svelte-axios-form/src/Form'
+
+      import HasError from 'svelte-axios-form/src/components/HasError.svelte'
+      import AlertError from 'svelte-axios-form/src/components/AlertError.svelte'
+      import AlertErrors from 'svelte-axios-form/src/components/AlertErrors.svelte'
+      import AlertSuccess from 'svelte-axios-form/src/components/AlertSuccess.svelte'
+
+      let form = new Form({
+        comment: ''
+      })
+
+      form.clear()
+      form = form // note: you might need this line to trigger reactivity
+
+      async function submit () {
+        // clear errors
+        form.clear()
+        if (!form.comment) {
+          form.errors.set('comment', 'Comment required')
+        }
+        if (form.errors.any()) {
+          form = form // note: you might need this line to trigger reactivity
+          return false
+        }
+
+        try {
+          // send form to axios.post(/comments)
+          // fill form.errors if errors returned
+          // normal axios reponse
+          const response = await form.post('comments')
+
+          // handle success
+          // goto('/home')
+        } catch (err) {
+          if (lodash.get(err, 'response.status') !== 422 && !form.errors.any()) {
+            // we have an error that might not be a laravel validation error
+            console.error(err)
+          }
+        } finally {
+          form = form // note: you might need this line to trigger reactivity
+        }
       }
-
-      let value = ''
-      let lang = 'sql'
-      let options = {}
-
-      function editorInit (editor) {
-        // @todo something with editor or something after init
-      }
-      function onEditorChange (newValue) {
-        value = newValue.detail;
-      }
-
     </script>
     ```
 
+    if your axios instance was not used by default:
+
+    ```js
+    <script>
+      import Form from 'svelte-axios-form'
+      // if you have a special axios instance you need to use
+      import client from './my-axios-client'
+
+      // set specific client for this instanciation
+      let form = new Form({
+        comment: ''
+        axios: client,
+      })
+
+      // or set global default
+      Form.axios = client
+    </script>
+    ```
+
+    ```js
+    <script>
+      import Errors from 'svelte-axios-form/src/Error'
+      // if you want to use an ErrorBag directly
+    ```
+
+
 3. Further Notes:
 
-    prop `value`  is required
-
-    prop `lang` and `theme` is same as [ace-editor's doc](https://github.com/ajaxorg/ace)
-
-    prop `height` and `width` could be one of these:  `200`, `200px`, `50%`
-
-    this component is based on this component: https://github.com/chairuosen/vue2-ace-editor/tree/91051422b36482eaf94271f1a263afa4b998f099
+* Your form can't contain any of these props: ['busy', 'successful', 'errors', 'originalData', 'axios']
+* the css for the components assumes you're using Boostrap 4, but they are optional extras and you could easily convert them.
+* this is a port of https://github.com/cretueusebiu/vform which was for a non-svelte front-end framework
